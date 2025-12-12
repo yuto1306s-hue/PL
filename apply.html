@@ -1,24 +1,32 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>応募フォーム</title>
+<meta charset="UTF-8">
+<title>応募フォーム</title>
 </head>
 <body>
-  <h1>応募フォーム</h1>
+<h2>応募フォーム</h2>
 
-  <form action="thanks.html" method="GET">
-    <label>名前：</label><br>
-    <input type="text" name="name" required><br><br>
+<form action="thanks.html" method="GET">
 
-    <label>メールアドレス：</label><br>
-    <input type="email" name="email" required><br><br>
+  <label>名前：</label><br>
+  <input type="text" name="name" required><br><br>
 
-    <label>志望理由：</label><br>
-    <textarea name="reason" rows="5" required></textarea><br><br>
+  <label>電話番号：</label><br>
+  <input type="tel" name="tel" required><br><br>
 
-    <button type="submit">応募する</button>
-  </form>
+  <label>最寄り駅：</label><br>
+  <input type="text" name="station" required><br><br>
+
+  <label>日払い希望：</label><br>
+  <select name="pay">
+    <option value="希望する">希望する</option>
+    <option value="希望しない">希望しない</option>
+  </select>
+  <br><br>
+
+  <button type="submit">応募する</button>
+</form>
 
 </body>
 </html>
