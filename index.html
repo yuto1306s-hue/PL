@@ -1,27 +1,53 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>募集一覧</title>
+<meta charset="UTF-8">
+<title>募集一覧</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; }
+  .job-box {
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+  }
+  .apply-btn {
+    display: inline-block;
+    padding: 8px 15px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+  }
+</style>
 </head>
 <body>
-  <h1>募集一覧</h1>
 
-  <div>
-    <h2>アルバイト募集 A</h2>
-    <p>内容：イベントスタッフ</p>
-    <a href="apply.html">
-      <button>応募する</button>
-    </a>
-  </div>
+<h2>募集一覧</h2>
 
-  <div>
-    <h2>アルバイト募集 B</h2>
-    <p>内容：軽作業スタッフ</p>
-    <a href="apply.html">
-      <button>応募する</button>
-    </a>
-  </div>
+<!-- ▼▼ ここから求人１つ ▼▼ -->
+<div class="job-box">
+  <p><strong>現場名：</strong>〇〇イベント会場</p>
+  <p><strong>内容：</strong>会場設営・撤去</p>
+  <p><strong>勤務地：</strong>東京都渋谷区</p>
+  <p><strong>時間：</strong>9:00〜18:00</p>
+
+  <a class="apply-btn" href="apply.html">応募する</a>
+</div>
+<!-- ▲▲ 求人１つ ▲▲ -->
+
+
+<!-- ▼▼ 求人を増やしたいときは、この箱をコピペして増やせる ▼▼ -->
+<div class="job-box">
+  <p><strong>現場名：</strong>△△コンサート</p>
+  <p><strong>内容：</strong>案内スタッフ</p>
+  <p><strong>勤務地：</strong>横浜市西区</p>
+  <p><strong>時間：</strong>12:00〜21:00</p>
+
+  <a class="apply-btn" href="apply.html">応募する</a>
+</div>
+<!-- ▲▲ コピペして増やせる ▲▲ -->
+
 
 </body>
 </html>
