@@ -2,13 +2,14 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>募集一覧</title>
+<title>募集一覧（人数制限あり）</title>
 <style>
   body { font-family: Arial, sans-serif; padding: 20px; }
   h2 { margin-bottom: 20px; }
   .job-box { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
   .apply-btn { display: inline-block; padding: 8px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; }
-  .status { font-weight: bold; margin-top: 10px; color: green; }
+  .apply-btn:disabled { background-color: #aaa; cursor: not-allowed; }
+  .status { font-weight: bold; margin-top: 10px; }
 </style>
 </head>
 <body>
@@ -17,50 +18,66 @@
 <div id="jobs-container"></div>
 
 <script>
-  // 現場情報（人数制限なし）
+  // 現場情報（人数制限あり）
   const jobs = [
     {
       name: "現場A",
       content: "会場設営",
       location: "東京都渋谷区",
       time: "9:00〜18:00",
-      formUrl: "https://docs.google.com/forms/d/e/1FAIpQLScIfONUgGlqo_qP-vTs3XegMmwXbzGI_dk_WKOoYf5S5ibtUQ/viewform?usp=sf_link"
+      formUrl: "https://docs.google.com/forms/d/e/1FAIpQLScIfONUgGlqo_qP-vTs3XegMmwXbzGI_dk_WKOoYf5S5ibtUQ/viewform?usp=sf_link",
+      maxApplicants: 2,  // 募集人数
+      currentApplicants: 0
     },
     {
       name: "現場B",
       content: "搬入作業",
       location: "東京都新宿区",
       time: "10:00〜19:00",
-      formUrl: "https://docs.google.com/forms/d/e/1FAIpQLSdYy2DXZQoaLSJofhe3NGoL7_K8MxlnN5SpHG-6ZcBfzxsQHg/viewform?usp=sf_link"
+      formUrl: "https://docs.google.com/forms/d/e/1FAIpQLSdYy2DXZQoaLSJofhe3NGoL7_K8MxlnN5SpHG-6ZcBfzxsQHg/viewform?usp=sf_link",
+      maxApplicants: 3,  // 募集人数
+      currentApplicants: 0
     }
   ];
 
   const container = document.getElementById('jobs-container');
 
-  // 募集一覧を描画
-  jobs.forEach(job => {
-    const div = document.createElement('div');
-    div.className = 'job-box';
+  function renderJobs() {
+    container.innerHTML = '';
+    jobs.forEach(job => {
+      const div = document.createElement('div');
+      div.className = 'job-box';
 
-    div.innerHTML = `
-      <p><strong>現場名：</strong>${job.name}</p>
-      <p><strong>内容：</strong>${job.content}</p>
-      <p><strong>勤務地：</strong>${job.location}</p>
-      <p><strong>時間：</strong>${job.time}</p>
-      <p class="status">募集中</p>
-      <button class="apply-btn">応募する</button>
-    `;
+      const isFull = job.currentApplicants >= job.maxApplicants;
 
-    // 応募ボタンでフォームを開く
-    const button = div.querySelector('button');
-    button.addEventListener('click', () => {
-      window.open(job.formUrl, '_blank');
+      div.innerHTML = `
+        <p><strong>現場名：</strong>${job.name}</p>
+        <p><strong>内容：</strong>${job.content}</p>
+        <p><strong>勤務地：</strong>${job.location}</p>
+        <p><strong>時間：</strong>${job.time}</p>
+        <p class="status">${isFull ? '募集終了' : '募集中'}</p>
+        <button class="apply-btn" ${isFull ? 'disabled' : ''}>応募する</button>
+      `;
+
+      const button = div.querySelector('button');
+      if (!isFull) {
+        button.addEventListener('click', () => {
+          // フォームを別タブで開く
+          window.open(job.formUrl, '_blank');
+
+          // 応募人数をカウント
+          job.currentApplicants++;
+          renderJobs(); // 再描画して「募集終了」に更新
+        });
+      }
+
+      container.appendChild(div);
     });
+  }
 
-    container.appendChild(div);
-  });
+  // 初回描画
+  renderJobs();
 </script>
 
 </body>
 </html>
-
