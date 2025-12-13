@@ -18,14 +18,12 @@
 <div id="jobs-container">読み込み中...</div>
 
 <script>
-// GAS の JSON URL（各フォームの応募人数を取得するウェブアプリURL）
 const jsonUrls = {
-  "現場A": "https://script.google.com/macros/s/AKfycbwzrH-MK6Bdo4DqpwlajS6tEpZ_7SiepvRe0has_xi9kSG-5WRNvk3UGaSVWDUo5QI/exec",
-  "現場B": "https://script.google.com/macros/s/AKfycbwoc_ckZpePLbsOnqCFgnROBO0tc4JHSRLlnK0e1JmMBFzF19yF6bZmXjNXux2OXeLijw/exec",
-  "現場C": "https://script.google.com/macros/s/YOUR_GAS_FOR_C/exec" // もしあれば
+  "現場A": "GAS_WEB_APP_URL_FOR_A", // 現場A のウェブアプリ URL
+  "現場B": "GAS_WEB_APP_URL_FOR_B", // 現場B のウェブアプリ URL
+  "現場C": "GAS_WEB_APP_URL_FOR_C"  // 現場C のウェブアプリ URL
 };
 
-// ここに求人情報を追加（募集内容・URLは変更なし）
 const jobs = [
   {
     name: "現場A",
@@ -55,7 +53,6 @@ const jobs = [
 
 const container = document.getElementById('jobs-container');
 
-// 各求人ごとに応募人数を取得して表示
 async function loadJobs() {
   container.innerHTML = '';
   for (const job of jobs) {
@@ -65,16 +62,14 @@ async function loadJobs() {
       if (url) {
         const res = await fetch(url);
         const data = await res.json();
-        // JSON 側に { currentApplicants: 数値 } という形式で返ってくる想定
         currentApplicants = data.currentApplicants || 0;
       }
-    } catch (e) {
-      console.error(job.name + ' の応募人数取得に失敗:', e);
+    } catch(e) {
+      console.error(job.name + ' の応募人数取得失敗:', e);
     }
 
     const div = document.createElement('div');
     div.className = 'job-box';
-
     const isFull = currentApplicants >= job.totalSlots;
 
     div.innerHTML = `
@@ -92,8 +87,6 @@ async function loadJobs() {
     if (!isFull) {
       button.addEventListener('click', () => {
         window.open(job.formUrl, '_blank');
-        // クリックしても HTML 側のカウントはここでは変更しない
-        // 次回ロード時に GAS 側の応募人数が反映される
       });
     }
 
@@ -101,7 +94,6 @@ async function loadJobs() {
   }
 }
 
-// ページ読み込み時に実行
 loadJobs();
 </script>
 
