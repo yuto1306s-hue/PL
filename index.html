@@ -7,7 +7,7 @@
   body { font-family: Arial, sans-serif; padding: 20px; }
   h2 { margin-bottom: 20px; }
   .job-box { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
-  .apply-btn { display: inline-block; padding: 8px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; }
+  .apply-btn { display: inline-block; padding: 8px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; border: none; }
   .apply-btn:disabled { background-color: #aaa; cursor: not-allowed; }
   .status { font-weight: bold; margin-top: 10px; }
 </style>
@@ -15,13 +15,11 @@
 <body>
 
 <h2>募集一覧</h2>
-<div id="jobs-container">読み込み中...</div>
+<div id="jobs-container"></div>
 
 <script>
-// ▼▼▼ ここにあなたのGAS URLを貼る ▼▼▼
-const GAS_URL = "https://script.google.com/macros/s/AKfycbyfDCWg3D-naoIHaTiMxE-cxtfAtUECOI8o0Aq_nBrz63k9orgs_zr31cSG-uCyx62UEg/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbyYmJQ03iXiggxri3K_75idd_Qjeq7zvRm1YGH-hEF0uF7DWKxOtrJF-BpWVbKMJNyQiA/exec";
 
-// 求人情報（ここはコピペで増やすだけ）
 const jobs = [
   {
     name: "現場A",
@@ -53,11 +51,10 @@ fetch(GAS_URL)
   .then(res => res.json())
   .then(applicants => {
     const container = document.getElementById('jobs-container');
-    container.innerHTML = "";
 
     jobs.forEach(job => {
-      const current = applicants[job.name] || 0;
-      const isFull = current >= job.totalSlots;
+      const currentApplicants = applicants[job.name] || 0;
+      const isFull = currentApplicants >= job.totalSlots;
 
       const div = document.createElement('div');
       div.className = 'job-box';
@@ -68,16 +65,23 @@ fetch(GAS_URL)
         <p><strong>勤務地：</strong>${job.location}</p>
         <p><strong>時間：</strong>${job.time}</p>
         <p><strong>募集人数：</strong>${job.totalSlots} 名</p>
-        <p><strong>応募人数：</strong>${current} 名</p>
+        <p><strong>応募人数：</strong>${currentApplicants} 名</p>
         <p class="status">${isFull ? '募集終了' : '募集中'}</p>
-        <a class="apply-btn" href="${job.formUrl}" target="_blank" ${isFull ? 'style="pointer-events:none; background:#aaa;"' : ''}>応募する</a>
+        <button class="apply-btn" ${isFull ? 'disabled' : ''}>応募する</button>
       `;
+
+      const btn = div.querySelector('button');
+      if (!isFull) {
+        btn.onclick = () => window.open(job.formUrl, "_blank");
+      }
 
       container.appendChild(div);
     });
   })
-  .catch(() => {
-    document.getElementById('jobs-container').textContent = "応募人数の取得に失敗しました";
+  .catch(err => {
+    document.getElementById('jobs-container').innerHTML =
+      "<p>応募人数の取得に失敗しました</p>";
+    console.error(err);
   });
 </script>
 
