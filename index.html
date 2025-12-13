@@ -6,59 +6,51 @@
 <style>
   body { font-family: Arial, sans-serif; padding: 20px; }
   h2 { margin-bottom: 20px; }
-  .job-box {
-    border: 1px solid #ccc;
-    padding: 15px;
-    margin-bottom: 20px;
-    border-radius: 5px;
-  }
-  .apply-btn {
-    display: inline-block;
-    padding: 8px 15px;
-    background-color: #007bff;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-  }
+  .job-box { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+  .apply-btn { display: inline-block; padding: 8px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; }
+  .status { font-weight: bold; margin-top: 10px; }
 </style>
 </head>
 <body>
 
 <h2>募集一覧</h2>
+<div id="jobs-container"></div>
 
-<!-- ▼▼ 求人１ ▼▼ -->
-<div class="job-box">
-  <p><strong>現場名：</strong>〇〇イベント会場</p>
-  <p><strong>内容：</strong>会場設営・撤去</p>
-  <p><strong>勤務地：</strong>東京都渋谷区</p>
-  <p><strong>時間：</strong>9:00〜18:00</p>
+<script>
+  // ここに2つのGASウェブアプリURLを入れる
+  const urls = [
+    'https://script.google.com/macros/s/AKfycbw_gmkDNPIbZcmwvMuHFrxgfHL7kcbIIXz3LmIAol23PoTovqeVYCR1OCF-wREzDa_NaA/exec',
+    'https://script.google.com/macros/s/AKfycbz8FJp0ES3a4SpGzMhyFo5Agql2s0rvnXD7Q0mbk8hjhVjPS-57179ey3NXXlEq20n-/exec'
+  ];
 
-  <!-- 応募ボタン（求人専用フォームURL） -->
-  <a class="apply-btn" 
-     href="https://docs.google.com/forms/d/e/1FAIpQLScIfONUgGlqo_qP-vTs3XegMmwXbzGI_dk_WKOoYf5S5ibtUQ/viewform" 
-     target="_blank">
-     応募する
-  </a>
-</div>
-<!-- ▲▲ 求人１ ▲▲ -->
+  const container = document.getElementById('jobs-container');
 
-<!-- ▼▼ 求人２ ▼▼ -->
-<div class="job-box">
-  <p><strong>現場名：</strong>△△コンサート</p>
-  <p><strong>内容：</strong>案内スタッフ</p>
-  <p><strong>勤務地：</strong>横浜市西区</p>
-  <p><strong>時間：</strong>12:00〜21:00</p>
+  urls.forEach(url => {
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        Object.keys(data).forEach(jobId => {
+          const job = data[jobId];
 
-  <!-- 応募ボタン（求人専用フォームURL） -->
-  <a class="apply-btn" 
-     href="https://docs.google.com/forms/d/e/1FAIpQLSdYy2DXZQoaLSJofhe3NGoL7_K8MxlnN5SpHG-6ZcBfzxsQHg/viewform?usp=header" 
-     target="_blank">
-     応募する
-  </a>
-</div>
-<!-- ▲▲ 求人２ ▲▲ -->
+          const div = document.createElement('div');
+          div.className = 'job-box';
 
-<!-- ▼▼ 追加求人はこの部分をコピーしてフォームIDと内容を変更 ▼▼ -->
+          div.innerHTML = `
+            <p><strong>現場名：</strong>${job.name}</p>
+            <p><strong>内容：</strong>${job.content}</p>
+            <p><strong>勤務地：</strong>${job.location}</p>
+            <p><strong>時間：</strong>${job.time}</p>
+            <p class="status" id="${jobId}-status">${job.currentApplicants >= job.maxApplicants ? '募集終了' : '募集中'}</p>
+            <a id="${jobId}-apply" class="apply-btn" href="${job.formUrl}" target="_blank" ${job.currentApplicants >= job.maxApplicants ? 'style="display:none;"' : ''}>応募する</a>
+          `;
+
+          container.appendChild(div);
+        });
+      })
+      .catch(err => console.error('JSON取得エラー:', err));
+  });
+</script>
 
 </body>
 </html>
+
