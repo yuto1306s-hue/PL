@@ -18,12 +18,10 @@
 <div id="jobs-container">読み込み中...</div>
 
 <script>
-const jsonUrls = {
-  "現場A": "GAS_WEB_APP_URL_FOR_A", // 現場A のウェブアプリ URL
-  "現場B": "GAS_WEB_APP_URL_FOR_B", // 現場B のウェブアプリ URL
-  "現場C": "GAS_WEB_APP_URL_FOR_C"  // 現場C のウェブアプリ URL
-};
+// ▼▼▼ ここにあなたのGAS URLを貼る ▼▼▼
+const GAS_URL = "https://script.google.com/macros/s/AKfycbyfDCWg3D-naoIHaTiMxE-cxtfAtUECOI8o0Aq_nBrz63k9orgs_zr31cSG-uCyx62UEg/exec";
 
+// 求人情報（ここはコピペで増やすだけ）
 const jobs = [
   {
     name: "現場A",
@@ -51,51 +49,38 @@ const jobs = [
   }
 ];
 
-const container = document.getElementById('jobs-container');
+fetch(GAS_URL)
+  .then(res => res.json())
+  .then(applicants => {
+    const container = document.getElementById('jobs-container');
+    container.innerHTML = "";
 
-async function loadJobs() {
-  container.innerHTML = '';
-  for (const job of jobs) {
-    let currentApplicants = 0;
-    try {
-      const url = jsonUrls[job.name];
-      if (url) {
-        const res = await fetch(url);
-        const data = await res.json();
-        currentApplicants = data.currentApplicants || 0;
-      }
-    } catch(e) {
-      console.error(job.name + ' の応募人数取得失敗:', e);
-    }
+    jobs.forEach(job => {
+      const current = applicants[job.name] || 0;
+      const isFull = current >= job.totalSlots;
 
-    const div = document.createElement('div');
-    div.className = 'job-box';
-    const isFull = currentApplicants >= job.totalSlots;
+      const div = document.createElement('div');
+      div.className = 'job-box';
 
-    div.innerHTML = `
-      <p><strong>現場名：</strong>${job.name}</p>
-      <p><strong>内容：</strong>${job.content}</p>
-      <p><strong>勤務地：</strong>${job.location}</p>
-      <p><strong>時間：</strong>${job.time}</p>
-      <p><strong>募集人数：</strong>${job.totalSlots} 名</p>
-      <p><strong>応募人数：</strong>${currentApplicants} 名</p>
-      <p class="status">${isFull ? '募集終了' : '募集中'}</p>
-      <button class="apply-btn" ${isFull ? 'disabled' : ''}>応募する</button>
-    `;
+      div.innerHTML = `
+        <p><strong>現場名：</strong>${job.name}</p>
+        <p><strong>内容：</strong>${job.content}</p>
+        <p><strong>勤務地：</strong>${job.location}</p>
+        <p><strong>時間：</strong>${job.time}</p>
+        <p><strong>募集人数：</strong>${job.totalSlots} 名</p>
+        <p><strong>応募人数：</strong>${current} 名</p>
+        <p class="status">${isFull ? '募集終了' : '募集中'}</p>
+        <a class="apply-btn" href="${job.formUrl}" target="_blank" ${isFull ? 'style="pointer-events:none; background:#aaa;"' : ''}>応募する</a>
+      `;
 
-    const button = div.querySelector('button');
-    if (!isFull) {
-      button.addEventListener('click', () => {
-        window.open(job.formUrl, '_blank');
-      });
-    }
-
-    container.appendChild(div);
-  }
-}
-
-loadJobs();
+      container.appendChild(div);
+    });
+  })
+  .catch(() => {
+    document.getElementById('jobs-container').textContent = "応募人数の取得に失敗しました";
+  });
 </script>
 
 </body>
 </html>
+
