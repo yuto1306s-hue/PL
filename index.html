@@ -17,10 +17,10 @@
 <div id="jobs-container"></div>
 
 <script>
-  // GASウェブアプリURLを2つ設定（現場Aと現場B）
+  // GASウェブアプリURLを2つ設定（job1, job2）
   const urls = [
-    'https://script.google.com/macros/s/AKfycbw_gmkDNPIbZcmwvMuHFrxgfHL7kcbIIXz3LmIAol23PoTovqeVYCR1OCF-wREzDa_NaA/exec',
-    'https://script.google.com/macros/s/AKfycbz8FJp0ES3a4SpGzMhyFo5Agql2s0rvnXD7Q0mbk8hjhVjPS-57179ey3NXXlEq20n-/exec'
+    'https://script.google.com/macros/s/AKfycbwzrH-MK6Bdo4DqpwlajS6tEpZ_7SiepvRe0has_xi9kSG-5WRNvk3UGaSVWDUo5QI/exec',
+    'https://script.google.com/macros/s/AKfycbwoc_ckZpePLbsOnqCFgnROBO0tc4JHSRLlnK0e1JmMBFzF19yF6bZmXjNXux2OXeLijw/exec'
   ];
 
   const container = document.getElementById('jobs-container');
@@ -32,8 +32,7 @@
         Object.keys(data).forEach(jobId => {
           const job = data[jobId];
 
-          // 両現場とも募集人数1人に設定
-          const maxApplicants = 1;
+          const maxApplicants = 10; // 両現場1人募集
           const currentApplicants = job.currentApplicants;
 
           const div = document.createElement('div');
