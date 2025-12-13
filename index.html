@@ -15,12 +15,17 @@
 <body>
 
 <h2>募集一覧</h2>
-<div id="jobs-container"></div>
+<div id="jobs-container">読み込み中...</div>
 
 <script>
-const container = document.getElementById('jobs-container');
+// GAS の JSON URL（各フォームの応募人数を取得するウェブアプリURL）
+const jsonUrls = {
+  "現場A": "https://script.google.com/macros/s/AKfycbwzrH-MK6Bdo4DqpwlajS6tEpZ_7SiepvRe0has_xi9kSG-5WRNvk3UGaSVWDUo5QI/exec",
+  "現場B": "https://script.google.com/macros/s/AKfycbwoc_ckZpePLbsOnqCFgnROBO0tc4JHSRLlnK0e1JmMBFzF19yF6bZmXjNXux2OXeLijw/exec",
+  "現場C": "https://script.google.com/macros/s/YOUR_GAS_FOR_C/exec" // もしあれば
+};
 
-// ここに求人情報を追加
+// ここに求人情報を追加（募集内容・URLは変更なし）
 const jobs = [
   {
     name: "現場A",
@@ -28,8 +33,7 @@ const jobs = [
     location: "東京都渋谷区",
     time: "9:00〜18:00",
     formUrl: "https://docs.google.com/forms/d/e/1FAIpQLScIfONUgGlqo_qP-vTs3XegMmwXbzGI_dk_WKOoYf5S5ibtUQ/viewform?usp=sf_link",
-    totalSlots: 2,
-    currentApplicants: 0
+    totalSlots: 2
   },
   {
     name: "現場C",
@@ -37,8 +41,7 @@ const jobs = [
     location: "渋谷区",
     time: "9:00〜18:00",
     formUrl: "https://docs.google.com/forms/d/e/1FAIpQLSfnITtrtXbTZ_tCxeSU_N01DEEql4GdxBkXRzrKDzHBhKokMA/viewform?usp=header",
-    totalSlots: 2222,
-    currentApplicants: 0
+    totalSlots: 2222
   },
   {
     name: "現場B",
@@ -46,47 +49,61 @@ const jobs = [
     location: "東京都港区",
     time: "12:00〜18:00",
     formUrl: "https://docs.google.com/forms/d/e/1FAIpQLSdYy2DXZQoaLSJofhe3NGoL7_K8MxlnN5SpHG-6ZcBfzxsQHg/viewform?usp=sf_link",
-    totalSlots: 1,
-    currentApplicants: 0
+    totalSlots: 1
   }
-  // ここに追加求人をコピー＆ペースト
 ];
 
-jobs.forEach(job => {
-  const div = document.createElement('div');
-  div.className = 'job-box';
+const container = document.getElementById('jobs-container');
 
-  const isFull = job.currentApplicants >= job.totalSlots;
-
-  div.innerHTML = `
-    <p><strong>現場名：</strong>${job.name}</p>
-    <p><strong>内容：</strong>${job.content}</p>
-    <p><strong>勤務地：</strong>${job.location}</p>
-    <p><strong>時間：</strong>${job.time}</p>
-    <p><strong>募集人数：</strong>${job.totalSlots} 名</p>
-    <p><strong>応募人数：</strong>${job.currentApplicants} 名</p>
-    <p class="status">${isFull ? '募集終了' : '募集中'}</p>
-    <button class="apply-btn" ${isFull ? 'disabled' : ''}>応募する</button>
-  `;
-
-  const button = div.querySelector('button');
-  if (!isFull) {
-    button.addEventListener('click', () => {
-      window.open(job.formUrl, '_blank');
-      // 応募人数をカウントアップ（簡易版）
-      job.currentApplicants++;
-      div.querySelector('p:nth-of-type(6)').textContent = `応募人数：${job.currentApplicants} 名`;
-      if (job.currentApplicants >= job.totalSlots) {
-        div.querySelector('.status').textContent = '募集終了';
-        button.disabled = true;
+// 各求人ごとに応募人数を取得して表示
+async function loadJobs() {
+  container.innerHTML = '';
+  for (const job of jobs) {
+    let currentApplicants = 0;
+    try {
+      const url = jsonUrls[job.name];
+      if (url) {
+        const res = await fetch(url);
+        const data = await res.json();
+        // JSON 側に { currentApplicants: 数値 } という形式で返ってくる想定
+        currentApplicants = data.currentApplicants || 0;
       }
-    });
-  }
+    } catch (e) {
+      console.error(job.name + ' の応募人数取得に失敗:', e);
+    }
 
-  container.appendChild(div);
-});
+    const div = document.createElement('div');
+    div.className = 'job-box';
+
+    const isFull = currentApplicants >= job.totalSlots;
+
+    div.innerHTML = `
+      <p><strong>現場名：</strong>${job.name}</p>
+      <p><strong>内容：</strong>${job.content}</p>
+      <p><strong>勤務地：</strong>${job.location}</p>
+      <p><strong>時間：</strong>${job.time}</p>
+      <p><strong>募集人数：</strong>${job.totalSlots} 名</p>
+      <p><strong>応募人数：</strong>${currentApplicants} 名</p>
+      <p class="status">${isFull ? '募集終了' : '募集中'}</p>
+      <button class="apply-btn" ${isFull ? 'disabled' : ''}>応募する</button>
+    `;
+
+    const button = div.querySelector('button');
+    if (!isFull) {
+      button.addEventListener('click', () => {
+        window.open(job.formUrl, '_blank');
+        // クリックしても HTML 側のカウントはここでは変更しない
+        // 次回ロード時に GAS 側の応募人数が反映される
+      });
+    }
+
+    container.appendChild(div);
+  }
+}
+
+// ページ読み込み時に実行
+loadJobs();
 </script>
 
 </body>
 </html>
-
